@@ -1,5 +1,5 @@
 python train.py \
-    --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" \
+    --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --revision="flax" \
     --dataset_name="KhangTruong/NWPU_Split" \
     --resolution=256 --center_crop --random_flip \
     --train_batch_size=64 \
