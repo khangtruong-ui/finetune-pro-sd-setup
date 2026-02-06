@@ -3,8 +3,25 @@ import random
 from torchvision import transforms
 import grain.python as grain
 from datasets import load_dataset
+import numpy as np
 import jax.numpy as jnp
 import jax
+
+from torch.utils.data import DataLoader, Dataset
+from torch.utils.data.distributed import DistributedSampler
+
+
+class TorchDataset(Dataset):
+    def __init__(self, ds):
+        self.ds = ds
+
+    def __len__(self):
+        return len(self.ds) * 10000
+
+    def __getitem__(self, i):
+        item = self.ds[i % len(self.ds)]
+        output = jax.tree.map(lambda x: np.array(x), item)
+        return output
 
 def get_transforms(config):
     return transforms.Compose([
@@ -45,22 +62,22 @@ def get_dataloader(config, tokenizer):
 
     dataset = dataset["train"].with_transform(preprocess)
 
-    sampler = grain.IndexSampler(
-        num_records=len(dataset),
-        shard_options=grain.ShardOptions(
-            shard_index=jax.process_index(),
-            shard_count=jax.process_count(),
-            drop_remainder=True,
-        ),
+    mapped_ds = TorchDataset(dataset)
+    
+    torch_sampler = DistributedSampler(
+        dataset=mapped_ds,
+        num_replicas=jax.process_count(),   # == num_programs
+        rank=jax.process_index(),                 # == program_index
         shuffle=True,
-        seed=config.seed,
     )
 
-    loader = grain.DataLoader(
-        data_source=dataset,
-        sampler=sampler,
-        operations=[grain.Batch(batch_size=config.train_batch_size * jax.local_device_count(), drop_remainder=True)],
-    )
+    torch_loader = DataLoader(
+        mapped_ds, 
+        batch_size=config.train_batch_size * jax.local_device_count(),
+        sampler=torch_sampler,
+        drop_last=True,
+        num_workers=os.cpu_count() // 2
+     )
 
-    loader_length = len(dataset) // (config.train_batch_size * jax.device_count())
-    return {'loader': loader, 'length': loader_length}
+    loader_length = len(dataset) // (config.train_batch_size * jax.local_device_count())
+    return {'loader': torch_loader, 'length': loader_length}
