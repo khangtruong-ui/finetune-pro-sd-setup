@@ -94,7 +94,7 @@ def get_dataloader(config, tokenizer):
         batch_size=config.train_batch_size * jax.local_device_count(),
         sampler=torch_sampler,
         drop_last=True,
-        num_workers=4
+        num_workers=os.cpu_count() // 2
      )
 
     loader_length = len(dataset) // (config.train_batch_size * jax.local_device_count())
