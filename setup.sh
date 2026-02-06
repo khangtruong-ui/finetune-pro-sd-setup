@@ -36,7 +36,7 @@ fi
 echo "===== Installing Python Dependencies ====="
 pip install --quiet --upgrade pip
 
-pip install --quiet \
+pip install --quiet --upgrade \
     jax[tpu] \
     flax \
     optax \
