@@ -13,9 +13,8 @@ from torch.utils.data.distributed import DistributedSampler
 
 
 class TorchDataset(Dataset):
-    def __init__(self, ds, mapper):
+    def __init__(self, ds):
         self.ds = ds
-        self.mapper = mapper
 
     def __len__(self):
         return len(self.ds) * 10000
@@ -63,7 +62,6 @@ def get_dataloader(config, tokenizer):
         )
         return ret
         
-    _dataset = dataset["train"]
     dataset = dataset["train"].with_transform(preprocess)
     sampler = grain.IndexSampler(
         num_records=len(dataset),
@@ -83,7 +81,7 @@ def get_dataloader(config, tokenizer):
     )
 
     
-    mapped_ds = TorchDataset(_dataset, preprocess)
+    mapped_ds = TorchDataset(dataset)
     
     torch_sampler = DistributedSampler(
         dataset=mapped_ds,
