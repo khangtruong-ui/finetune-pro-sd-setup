@@ -21,7 +21,6 @@ class TorchDataset(Dataset):
 
     def __getitem__(self, i):
         item = self.ds[i % len(self.ds)]
-        item = self.mapper(item)
         output = jax.tree.map(lambda x: np.array(x), item)
         return output
 
