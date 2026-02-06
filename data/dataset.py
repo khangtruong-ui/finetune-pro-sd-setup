@@ -62,7 +62,24 @@ def get_dataloader(config, tokenizer):
         return ret
 
     dataset = dataset["train"].with_transform(preprocess)
+    sampler = grain.IndexSampler(
+        num_records=len(dataset),
+        shard_options=grain.ShardOptions(
+            shard_index=jax.process_index(),
+            shard_count=jax.process_count(),
+            drop_remainder=True,
+        ),
+        shuffle=True,
+        seed=config.seed,
+    )
 
+    loader = grain.DataLoader(
+        data_source=dataset,
+        sampler=sampler,
+        operations=[grain.Batch(batch_size=config.train_batch_size * jax.local_device_count(), drop_remainder=True)],
+    )
+
+    """
     mapped_ds = TorchDataset(dataset)
     
     torch_sampler = DistributedSampler(
@@ -79,6 +96,7 @@ def get_dataloader(config, tokenizer):
         drop_last=True,
         num_workers=os.cpu_count() // 2
      )
+     """
 
     loader_length = len(dataset) // (config.train_batch_size * jax.local_device_count())
-    return {'loader': torch_loader, 'length': loader_length}
+    return {'loader': loader, 'length': loader_length}
