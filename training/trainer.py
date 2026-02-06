@@ -122,8 +122,6 @@ class Trainer:
                 
                 for step, batch in progress_bar:
                     # Move batch to devices and shard data
-                    with open('ready.log', 'w') as f:
-                        f.write('Here')
                     batch = jax.tree.map(np.array, batch)
                     batch = distribute_device(batch, sharding)
     
