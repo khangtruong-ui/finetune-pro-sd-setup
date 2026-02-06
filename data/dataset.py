@@ -96,7 +96,8 @@ def get_dataloader(config, tokenizer):
         drop_last=True,
         num_workers=4
      )
-     
+
+    next(torch_loader)
 
     loader_length = len(dataset) // (config.train_batch_size * jax.local_device_count())
     return {'loader': torch_loader, 'length': loader_length}
