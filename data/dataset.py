@@ -47,7 +47,7 @@ def get_dataloader(config, tokenizer):
 
     def preprocess(examples):
         images = [img.convert("RGB") for img in examples["image"]]
-        examples["pixel_values"] = jnp.array([transform(img) for img in images])
+        examples["pixel_values"] = np.array([transform(img) for img in images])
         
         caption_key = random.choice(['raw', 'raw_1', 'raw_2', 'raw_3', 'raw_4'])
         captions = examples[caption_key]
