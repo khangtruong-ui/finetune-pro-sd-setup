@@ -79,7 +79,7 @@ def get_dataloader(config, tokenizer):
         operations=[grain.Batch(batch_size=config.train_batch_size * jax.local_device_count(), drop_remainder=True)],
     )
 
-    """
+    
     mapped_ds = TorchDataset(dataset)
     
     torch_sampler = DistributedSampler(
@@ -94,9 +94,9 @@ def get_dataloader(config, tokenizer):
         batch_size=config.train_batch_size * jax.local_device_count(),
         sampler=torch_sampler,
         drop_last=True,
-        num_workers=os.cpu_count() // 2
+        num_workers=4
      )
-     """
+     
 
     loader_length = len(dataset) // (config.train_batch_size * jax.local_device_count())
-    return {'loader': loader, 'length': loader_length}
+    return {'loader': torch_loader, 'length': loader_length}
