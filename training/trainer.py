@@ -96,9 +96,7 @@ class Trainer:
         return encoder_hidden_states
 
     def get_init_epoch(self):
-        with open(f"{self.config.output_dir}/epoch.txt") as f:
-            return int(f.read())
-
+        return 0
 
     def train(self):
         logger.info("***** Starting Training *****")
