@@ -4,6 +4,7 @@ from torchvision import transforms
 import grain.python as grain
 from datasets import load_dataset
 import numpy as np
+import os
 import jax.numpy as jnp
 import jax
 
