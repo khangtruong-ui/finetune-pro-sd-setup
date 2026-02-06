@@ -1,6 +1,7 @@
 # training/trainer.py
 import jax
 import jax.numpy as jnp
+import numpy as np
 import math
 from tqdm.auto import tqdm
 import logging
@@ -123,6 +124,7 @@ class Trainer:
                     # Move batch to devices and shard data
                     with open('ready.log', 'w') as f:
                         f.write('Here')
+                    batch = jax.tree.map(np.array, batch)
                     batch = distribute_device(batch, sharding)
     
                     # Precompute text embeddings (frozen text encoder)
