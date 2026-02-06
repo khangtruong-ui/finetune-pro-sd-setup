@@ -124,11 +124,13 @@ class Trainer:
                     batch = distribute_device(batch, sharding)
     
                     # Precompute text embeddings (frozen text encoder)
+                    print('Precompute embedding:')
                     encoder_hidden_states = self.precompute_text_embeddings(batch)
                     batch["encoder_hidden_states"] = encoder_hidden_states
     
                     # Train step
                     rng, dropout_rng = jax.random.split(rng)
+                    print('Train step:')
                     self.state, loss, rng = self.train_step(
                         self.state,
                         self.vae_params,
