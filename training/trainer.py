@@ -121,7 +121,8 @@ class Trainer:
                 
                 for step, batch in progress_bar:
                     # Move batch to devices and shard data
-                    assert False
+                    with open('ready.log', 'w') as f:
+                        f.write('Here')
                     batch = distribute_device(batch, sharding)
     
                     # Precompute text embeddings (frozen text encoder)
