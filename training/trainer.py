@@ -77,15 +77,22 @@ class Trainer:
         # Compute steps
         self.steps_per_epoch = loader_length['length']
         self.max_steps = config.max_train_steps or (config.num_train_epochs * self.steps_per_epoch)
+        self._compiled_precompute = None
 
     def precompute_text_embeddings(self, batch):
         """Precompute text embeddings (text encoder is frozen)"""
         input_ids = batch["input_ids"]
-        encoder_hidden_states = self.text_encoder(
-            input_ids,
-            params=self.text_encoder_params,
-            train=False,
-        )[0]
+        
+        @jax.jit
+        def _compiled_precompute(input_ids):
+            return self.text_encoder(
+                input_ids,
+                params=self.text_encoder_params,
+                train=False,
+            )[0]
+
+        self._compiled_precompute = self._compiled_precompute or _compiled_precompute
+        encoder_hidden_states = self._compiled_precompute(input_ids)
         return encoder_hidden_states
 
     def get_init_epoch(self):
