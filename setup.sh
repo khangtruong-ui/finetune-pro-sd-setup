@@ -36,14 +36,14 @@ fi
 echo "===== Installing Python Dependencies ====="
 pip install --quiet --upgrade pip
 
-pip install --quiet --upgrade \
+pip install --quiet \
     jax[tpu] \
     flax \
     optax \
     transformers==4.57.3 \
     datasets \
     diffusers==0.36.0 \
-    torch torchvision \
+    torch==2.9.1 torchvision==0.24.1 \
     Pillow \
     matplotlib \
     grain \
