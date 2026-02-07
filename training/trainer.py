@@ -110,8 +110,9 @@ class Trainer:
 
         init_epoch = self.get_init_epoch()
         loader = iter(self.dataloader)
-        with open('progress.log', 'w') as f:
-            for epoch in range(init_epoch, self.config.num_train_epochs):
+
+        for epoch in range(init_epoch, self.config.num_train_epochs):
+            with open('progress.log', 'w') as f:
                 progress_bar = tqdm(
                     zip(range(self.steps_per_epoch), loader),
                     total=self.steps_per_epoch,
